@@ -1,0 +1,29 @@
+image: python:3.9
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip-cache"
+
+cache:
+  paths:
+    - .pip-cache/
+
+stages:
+  - test
+
+before_script:
+  - python -V
+  - pip install -r requirements.txt
+
+test_selenium:
+  stage: test
+  script:
+    - pytest test_opencart.py --junitxml=report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+    expire_in: 1 week
+  services:
+    - selenium/standalone-chrome:latest
+  variables:
+    SE_OPTS: "--no-sandbox"
