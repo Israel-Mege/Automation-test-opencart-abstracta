@@ -1,8 +1,8 @@
-<<<<<<< HEAD
 image: python:3.9
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip-cache"
+  SE_OPTS: "--no-sandbox"
 
 cache:
   paths:
@@ -10,6 +10,7 @@ cache:
 
 stages:
   - test
+  - security
 
 before_script:
   - python -V
@@ -17,29 +18,18 @@ before_script:
 
 test_selenium:
   stage: test
+  services:
+    - selenium/standalone-chrome:latest
   script:
-    - pytest test_opencart.py --junitxml=report.xml
+    - pytest tests/test_carrito.py --junitxml=report.xml
   artifacts:
     when: always
     reports:
       junit: report.xml
     expire_in: 1 week
-  services:
-    - selenium/standalone-chrome:latest
-  variables:
-    SE_OPTS: "--no-sandbox"
-=======
-# You can override the included template(s) by including variable overrides
-# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
-# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/pipeline/#customization
-# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
-# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
-# Note that environment variables can be set in several places
-# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
-stages:
-- test
+
+# Configuración de SAST (Security Analysis)
 sast:
-  stage: test
-include:
-- template: Security/SAST.gitlab-ci.yml
->>>>>>> 862a146e99d5ce2827522e7156b681f7ac2a5505
+  stage: security
+  include:
+    - template: Security/SAST.gitlab-ci.yml
